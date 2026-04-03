@@ -103,3 +103,19 @@ export const fetchForecast = async (city) => {
 
   return { list };
 };
+
+export const fetchAirQuality = async (city) => {
+  const geoRes = await fetch(
+    `${GEO_URL}?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+  );
+  const geoData = await geoRes.json();
+  if (!geoData.results) return null;
+
+  const { latitude, longitude, timezone } = geoData.results[0];
+
+  const aqRes = await fetch(
+    `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,ozone,european_aqi&timezone=${timezone}`
+  );
+  const aqData = await aqRes.json();
+  return aqData.current;
+};
